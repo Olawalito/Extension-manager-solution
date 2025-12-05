@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class=" bg-gray-500 justify-center ">
+    <header>
+        <div class="bg-gray-700 m-7 p-5 rounded-lg flex justify-between">
+            <img src="assets/logo.svg">
+            <img src="assets/icon-moon.svg" class=" ring-2 ring-amber-400 rounded-xl p-3 bg-gray-600">
+        </div>
+    </header>
+    <main>
+        <div class=" text-center">
+            <h1 class=" text-white text-3xl font-bold">Extensions List (<span class="extension-number"></span>)</h1>
+        </div>
+        <div class=" flex gap-5 justify-center mt-3 text-white">
+            <button class="bg-gray-600 p-2 rounded-2xl w-12 text-center all-btn active:bg-orange-600 hover:bg-gray-800 hover:ring-4 hover:ring-orange-600" name="category">All</button>
+            <button class="bg-gray-600 p-2 rounded-2xl w-24 text-center active-btn active:bg-orange-600 hover:bg-gray-800 hover:ring-4 hover:ring-orange-600" name="category">Active(<span class="active-number"></span>)</button>
+            <button class="bg-gray-600 p-2 rounded-2xl w-24 text-center inactive-btn active:bg-orange-600 hover:bg-gray-800 hover:ring-4 hover:ring-orange-600" name="category">Inactive(<span class="inactive-number"></span>)</button>
+        </div>
+    </main>
+    <main class="ext-container">
+    </main>
+    <footer class="text-center text-white my-5">
+        <p>Made by Olawale </p>
+    </footer>
+</body>
+<script>
+    let extContainer = document.querySelector('.ext-container');
+    let extNumber = document.querySelector('.extension-number');
+    let activeNumber = document.querySelector('.active-number');
+    let inactiveNumber = document.querySelector('.inactive-number');
+    let allBtn = document.querySelector('.all-btn');
+    let activeBtn = document.querySelector('.active-btn');
+    let inactiveBtn = document.querySelector('.inactive-btn');
+    let extensionCards = document.querySelectorAll('.extension-card');
+    let currentFilter = "all";
+    
+    let extensions = [
+        {img:"assets/logo-console-plus.svg",
+            name: "DevLens",
+            info:"Quickly inspect page layouts and visualize element boundaries.",
+            active: false
+        },
+        {
+            img:"assets/logo-style-spy.svg",
+            name: "StyleSpy",
+            info:"Instantly analyze and copy CSS from any webpage element.",
+            active: false
+        },
+        {
+            img:"assets/logo-speed-boost.svg",
+            name:"SpeedBoost",
+            info:"Optimizes browser resource usage to accelerate page loading.",
+            active: false
+        },
+        {
+            img:"assets/logo-json-wizard.svg",
+            name:"JSONWizard",
+            info:"Formats, validates, and prettifies JSON responses in-browser.",
+            active: false
+        },
+        {
+            img:"assets/logo-tab-master-pro.svg",
+            name:"TabMaster Pro",
+            info:"Organizes browser tabs into groups and sessions.",
+            active: false
+        },
+        {
+            img:"assets/logo-viewport-buddy.svg",
+            name:"ViewportBuddy",
+            info:"Simulates various screen resolutions directly within the browser.",
+            active: false
+        },
+        {
+            img:"assets/logo-markup-notes.svg",
+            name:"Markup Notes",
+            info:"Enables annotation and notes directly onto webpages for collaborative debugging.",
+            active: false
+        }
+    ];
+   extensions.forEach(
+    (extension) =>{
+        extContainer.insertAdjacentHTML('beforeend', `<div class=" mt-10 bg-gray-800 mx-14 p-10 rounded-lg extension-card" >
+        <div class=" flex gap-7">
+        <div>
+        <img src=${extension.img} class="h-18">
+        </div>
+        <div>
+            <h2 class=" text-white text-2xl font-bold">${extension.name}</h2>
+            <p class=" text-gray-300 mt-2">${extension.info}</p>
+        </div>
+  </div>
+
+  <div class=" flex justify-between mt-4">
+    <button class="bg-gray-600 p-2 rounded-3xl hover:bg-gray-700 text-white hover:ring-4 hover:ring-amber-700" data-index="${extensions.indexOf(extension)}">
+        Remove
+    </button>
+    <input type="checkbox" class="accent-amber-600" data-index="${extensions.indexOf(extension)}">
+  </div>
+    </div>`)
+    }
+   );
+
+    extContainer.addEventListener('click', (e) => {
+        if (e.target.type === 'checkbox') {
+            let index = e.target.dataset.index;
+
+            index =parseInt(index);
+
+            extensions[index].active = e.target.checked;
+
+            extensionFilter(currentFilter);
+
+            let activeCount = extensions.filter(ext => ext.active).length;
+            let inactiveCount = extensions.length - activeCount;
+
+            activeNumber.textContent = activeCount;
+            inactiveNumber.textContent = inactiveCount;
+            
+            
+
+        };
+        if(e.target.tagName === 'BUTTON'){
+        let index = e.target.dataset.index;
+
+        index = parseInt(index);
+
+        extensions.splice(index,1);
+     
+        let extCard = e.target.closest('.extension-card');
+
+        extCard.remove();
+
+        let extContainers = document.querySelectorAll('.extension-card');
+
+        extContainers.forEach((extensionContainer,newIndex) => {
+            let removeButton = extensionContainer.querySelector('button');
+            
+            let checkbox = extensionContainer.querySelector('input[type="checkbox"]');
+
+            removeButton.dataset.index = newIndex;
+
+            checkbox.dataset.index = newIndex;
+            
+            extensionFilter(currentFilter);
+
+        })
+
+        let activeCount = extensions.filter(ext => ext.active).length;
+            let inactiveCount = extensions.length - activeCount;
+
+            activeNumber.textContent = activeCount;
+            inactiveNumber.textContent = inactiveCount;
+
+             extNumber.textContent = extensions.length;
+    }
+    });
+    extNumber.insertAdjacentHTML('beforeend', extensions.length);
+    activeNumber.insertAdjacentHTML('beforeend', 0);
+    inactiveNumber.insertAdjacentHTML('beforeend', extensions.length);
+
+    function selectButton(btn) {
+    allBtn.classList.remove("bg-orange-600");
+    activeBtn.classList.remove("bg-orange-600");
+    inactiveBtn.classList.remove("bg-orange-600");
+
+    btn.classList.add("bg-orange-600");
+};
+
+   function extensionFilter(filterType){
+     extensionCards = document.querySelectorAll('.extension-card');
+     
+     extensionCards.forEach(extensionCard => {
+        let checkbox = extensionCard.querySelector('input[type="checkbox"]');
+
+        if (filterType === 'all') {
+            extensionCard.style.display = "block";
+        } else if (filterType === 'active' && checkbox.checked) {
+            extensionCard.style.display = "block";
+        } else if (filterType === 'inactive' && !checkbox.checked) {
+            extensionCard.style.display = "block";
+        } else {
+            extensionCard.style.display = "none";
+        }
+    })
+   };
+
+allBtn.addEventListener("click", () => {
+
+    selectButton(allBtn);
+ 
+    extensionFilter('all');
+
+    currentFilter = "all";
+
+});
+
+activeBtn.addEventListener("click", () => {
+    selectButton(activeBtn);
+
+    extensionFilter('active');
+
+    currentFilter = "active";
+
+});
+
+inactiveBtn.addEventListener("click", () => {
+    selectButton(inactiveBtn);
+
+    extensionFilter('inactive');
+
+    currentFilter = "inactive";
+});
+
+
+   
+</script>
+</html>
